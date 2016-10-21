@@ -96,7 +96,8 @@ public class PlayScreen implements Screen {
         renderer.setView(camera);
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
 
-
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         renderer.render();
         hud.stage.draw();
 
@@ -107,12 +108,25 @@ public class PlayScreen implements Screen {
 		}
 		for(Sprite b: beamList){
 			b.draw(game.batch);
+            Rectangle boundingRectangle = b.getBoundingRectangle();
+            shapeRenderer.rect(boundingRectangle.x,
+                    boundingRectangle.y,
+                    boundingRectangle.width,
+                    boundingRectangle.height
+            );
 		}
         for(Sprite b: enemyList){
             b.draw(game.batch);
             // Draw Background color
+            Rectangle boundingRectangle = b.getBoundingRectangle();
+            shapeRenderer.rect(boundingRectangle.x,
+                                boundingRectangle.y,
+                                boundingRectangle.width,
+                                boundingRectangle.height
+                    );
         }
         game.batch.end();
+        shapeRenderer.end();
 
 
 
