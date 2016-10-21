@@ -7,9 +7,12 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -35,7 +38,9 @@ public class PlayScreen implements Screen {
     private EnemyShip enemyShip = null;
     private Beam beam = null;
     private List<Sprite> spriteList;
-    private List<Sprite> beamList;
+    private List<Sprite> enemyList;
+    private List<Beam> beamList;
+    private List<Sprite> delete;
 
     private ShipGame game;
     private OrthographicCamera camera;
@@ -44,6 +49,7 @@ public class PlayScreen implements Screen {
     private TmxMapLoader tmxMapLoader;
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer renderer;
+    private ShapeRenderer shapeRenderer;
 
 
 
@@ -65,11 +71,14 @@ public class PlayScreen implements Screen {
 		enemyShip = new EnemyShip(enemy);
 		humanShip = new FriendShip(human);
 		spriteList = new ArrayList<Sprite>();
-		beamList = new ArrayList<Sprite>();
+		beamList = new ArrayList<Beam>();
+        enemyList = new ArrayList<Sprite>();
 		spriteList.add(humanShip);
-		spriteList.add(enemyShip);
+		enemyList.add(enemyShip);
 
         hud = new Hud(game.batch);
+
+        shapeRenderer = new ShapeRenderer();
 
     }
 
@@ -87,6 +96,7 @@ public class PlayScreen implements Screen {
         renderer.setView(camera);
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
 
+
         renderer.render();
         hud.stage.draw();
 
@@ -98,7 +108,13 @@ public class PlayScreen implements Screen {
 		for(Sprite b: beamList){
 			b.draw(game.batch);
 		}
+        for(Sprite b: enemyList){
+            b.draw(game.batch);
+            // Draw Background color
+        }
         game.batch.end();
+
+
 
 		float x = humanShip.getX(), y = humanShip.getY();
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
@@ -110,13 +126,7 @@ public class PlayScreen implements Screen {
 			if(x < ShipGame.WORLD_WIDTH - humanShip.getWidth()){
 				x += 200 * delta;
 			}
-		}/*
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
-            camera.position.y += 100 * delta;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-            camera.position.y -= 100 * delta;
-        }*/
+		}
         y += 50 * delta;
         camera.position.y += 50 * delta;
         humanShip.setPosition(x, y);
@@ -124,8 +134,29 @@ public class PlayScreen implements Screen {
 			beam = new Beam(tbeam, 0, 0, 30, 94);
 			beam.setPosition(humanShip.getX(), humanShip.getY() + humanShip.getHeight() / 2);
 			beamList.add(beam);
-            hud.increaseScore(10);
 		}
+
+        for (Beam b: beamList
+             ) {
+            for(Sprite s: enemyList){
+                if(b.collisione(s)){
+                    System.out.println("Collision");
+                    hud.increaseScore(((EnemyShip)s).getScore());
+                    if(delete == null) delete = new ArrayList<Sprite>();
+                    delete.add(s);
+                    delete.add(b);
+                }
+            }
+        }
+
+        if(delete != null){
+            for( Sprite d: delete){
+                enemyList.remove(d);
+                beamList.remove(d);
+            }
+            delete = null;
+        }
+
     }
 
     @Override

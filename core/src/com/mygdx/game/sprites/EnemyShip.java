@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class EnemyShip extends Sprite {
 
+    private Integer score;
     private float velocity = -1.0f;
     private TextureRegion[] textures = null;
     private Animation animation;
@@ -30,6 +31,7 @@ public class EnemyShip extends Sprite {
         textures[2] = new TextureRegion(texture, 96, 144, 48, 32);
         textures[3] = new TextureRegion(texture, 144, 144, 48, 32);
         animation = new Animation(1/10f, textures);
+        score = 10;
     }
 
     @Override
@@ -42,4 +44,10 @@ public class EnemyShip extends Sprite {
         currentFrame = animation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, getX() + (int)(50*Math.sin(stateTime)), getY());
     }
+
+    public Integer getScore(){
+        return score;
+    }
+
+
 }
