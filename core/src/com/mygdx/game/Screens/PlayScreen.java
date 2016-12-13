@@ -21,8 +21,10 @@ import com.mygdx.game.sprites.Beam;
 import com.mygdx.game.sprites.EnemyShip;
 import com.mygdx.game.sprites.FriendShip;
 import com.mygdx.game.ShipGame;
+import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -39,8 +41,7 @@ public class PlayScreen implements Screen {
     private Beam beam = null;
     private List<Sprite> spriteList;
     private List<Sprite> enemyList;
-    private List<Beam> beamList;
-    private List<Sprite> delete;
+    private Array<Beam> beamList;
 
     private ShipGame game;
     private OrthographicCamera camera;
@@ -71,8 +72,8 @@ public class PlayScreen implements Screen {
 		enemyShip = new EnemyShip(enemy);
 		humanShip = new FriendShip(human);
 		spriteList = new ArrayList<Sprite>();
-		beamList = new ArrayList<Beam>();
         enemyList = new ArrayList<Sprite>();
+        beamList = new Array<Beam>();
 		spriteList.add(humanShip);
 		enemyList.add(enemyShip);
 
@@ -150,25 +151,23 @@ public class PlayScreen implements Screen {
 			beamList.add(beam);
 		}
 
-        for (Beam b: beamList
-             ) {
-            for(Sprite s: enemyList){
+        Iterator<Beam> itBeam = beamList.iterator();
+        for(;itBeam.hasNext();){
+            Beam b = itBeam.next();
+            Iterator<Sprite> itEnemy = enemyList.iterator();
+            for(;itEnemy.hasNext();){
+                Sprite s = itEnemy.next();
                 if(b.collisione(s)){
                     System.out.println("Collision");
                     hud.increaseScore(((EnemyShip)s).getScore());
-                    if(delete == null) delete = new ArrayList<Sprite>();
-                    delete.add(s);
-                    delete.add(b);
+                    itBeam.remove();
+                    itEnemy.remove();
                 }
             }
-        }
-
-        if(delete != null){
-            for( Sprite d: delete){
-                enemyList.remove(d);
-                beamList.remove(d);
+            if( b.getY() > ShipGame.WORLD_HEIGHT/2 + camera.position.y){
+                System.out.println("Remove Beam because out screen");
+                itBeam.remove();
             }
-            delete = null;
         }
 
     }

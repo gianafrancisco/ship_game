@@ -36,13 +36,14 @@ public class EnemyShip extends Sprite {
 
     @Override
     public void draw(Batch batch) {
-        setPosition(getX(), getY() + velocity);
+        stateTime += Gdx.graphics.getDeltaTime();
+        setPosition(getX() + (float)Math.sin(stateTime), getY() + velocity);
         if(getY() < 0){
             setPosition(0, 600);
         }
-        stateTime += Gdx.graphics.getDeltaTime();
+        getVertices();
         currentFrame = animation.getKeyFrame(stateTime, true);
-        batch.draw(currentFrame, getX() + (int)(50*Math.sin(stateTime)), getY());
+        batch.draw(currentFrame, getX(), getY());
     }
 
     public Integer getScore(){
